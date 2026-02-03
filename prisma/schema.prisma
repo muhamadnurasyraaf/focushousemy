@@ -42,8 +42,8 @@ model Booking {
   id            String        @id @default(cuid())
   studioId      String
   studio        Studio        @relation(fields: [studioId], references: [id], onDelete: Cascade)
-  userId        String
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
   customerName  String
   customerEmail String
   customerPhone String?
@@ -80,8 +80,8 @@ model AccessoryRental {
   id            String        @id @default(cuid())
   accessoryId   String
   accessory     Accessory     @relation(fields: [accessoryId], references: [id], onDelete: Cascade)
-  userId        String
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
   customerName  String
   customerEmail String
   customerPhone String?
@@ -115,12 +115,11 @@ model RepairRequest {
   id               String              @id @default(cuid())
   serviceId        String
   service          RepairService       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  userId           String
-  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String?
+  user             User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
   customerName     String
   customerEmail    String
   customerPhone    String?
-  deviceDetails    String
   issueDescription String
   estimatedPrice   Decimal?            @db.Decimal(10, 2)
   finalPrice       Decimal?            @db.Decimal(10, 2)
