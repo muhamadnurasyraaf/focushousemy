@@ -1,0 +1,160 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             String            @id @default(cuid())
+  name           String?
+  email          String            @unique
+  password       String
+  role           UserRole          @default(USER)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  bookings       Booking[]
+  rentals        AccessoryRental[]
+  repairRequests RepairRequest[]
+}
+
+model Studio {
+  id           String      @id @default(cuid())
+  name         String
+  description  String?
+  location     String?
+  capacity     Int?
+  pricePerHour Decimal     @db.Decimal(10, 2)
+  pricingType  PricingType @default(PER_HOUR)
+  images       String[]
+  amenities    String[]
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  bookings     Booking[]
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  studioId      String
+  studio        Studio        @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  startTime     DateTime
+  endTime       DateTime
+  totalPrice    Decimal       @db.Decimal(10, 2)
+  status        BookingStatus @default(PENDING)
+  notes         String?
+  cancelReason  String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([studioId])
+  @@index([userId])
+  @@index([status])
+  @@index([startTime, endTime])
+}
+
+model Accessory {
+  id          String            @id @default(cuid())
+  name        String
+  description String?
+  category    String?
+  quantity    Int               @default(1)
+  pricePerDay Decimal           @db.Decimal(10, 2)
+  images      String[]
+  isActive    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  rentals     AccessoryRental[]
+}
+
+model AccessoryRental {
+  id            String        @id @default(cuid())
+  accessoryId   String
+  accessory     Accessory     @relation(fields: [accessoryId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  startDate     DateTime
+  endDate       DateTime
+  quantity      Int           @default(1)
+  totalPrice    Decimal       @db.Decimal(10, 2)
+  status        BookingStatus @default(PENDING)
+  notes         String?
+  cancelReason  String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([accessoryId])
+  @@index([userId])
+  @@index([status])
+}
+
+model RepairService {
+  id          String          @id @default(cuid())
+  name        String
+  description String?
+  basePrice   Decimal         @db.Decimal(10, 2)
+  isActive    Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  requests    RepairRequest[]
+}
+
+model RepairRequest {
+  id               String              @id @default(cuid())
+  serviceId        String
+  service          RepairService       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerName     String
+  customerEmail    String
+  customerPhone    String?
+  deviceDetails    String
+  issueDescription String
+  estimatedPrice   Decimal?            @db.Decimal(10, 2)
+  finalPrice       Decimal?            @db.Decimal(10, 2)
+  status           RepairRequestStatus @default(PENDING)
+  notes            String?
+  cancelReason     String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  @@index([serviceId])
+  @@index([userId])
+  @@index([status])
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum BookingStatus {
+  PENDING
+  APPROVED
+  CANCELLED
+  COMPLETED
+}
+
+enum PricingType {
+  PER_HOUR
+  PER_DAY
+}
+
+enum RepairRequestStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
