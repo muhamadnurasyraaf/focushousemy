@@ -17,49 +17,8 @@ model User {
   role           UserRole          @default(USER)
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
-  bookings       Booking[]
   rentals        AccessoryRental[]
   repairRequests RepairRequest[]
-}
-
-model Studio {
-  id           String      @id @default(cuid())
-  name         String
-  description  String?
-  location     String?
-  capacity     Int?
-  pricePerHour Decimal     @db.Decimal(10, 2)
-  pricingType  PricingType @default(PER_HOUR)
-  images       String[]
-  amenities    String[]
-  isActive     Boolean     @default(true)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  bookings     Booking[]
-}
-
-model Booking {
-  id            String        @id @default(cuid())
-  studioId      String
-  studio        Studio        @relation(fields: [studioId], references: [id], onDelete: Cascade)
-  userId        String?
-  user          User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  customerName  String
-  customerEmail String
-  customerPhone String?
-  startTime     DateTime
-  endTime       DateTime
-  totalPrice    Decimal       @db.Decimal(10, 2)
-  status        BookingStatus @default(PENDING)
-  notes         String?
-  cancelReason  String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-
-  @@index([studioId])
-  @@index([userId])
-  @@index([status])
-  @@index([startTime, endTime])
 }
 
 model Accessory {
@@ -146,14 +105,73 @@ enum BookingStatus {
   COMPLETED
 }
 
-enum PricingType {
-  PER_HOUR
-  PER_DAY
-}
-
 enum RepairRequestStatus {
   PENDING
   IN_PROGRESS
   COMPLETED
   CANCELLED
+}
+
+model SiteConfig {
+  id                  String   @id @default(cuid())
+  heroBackgroundImage String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model PhotographyPage {
+  id           String                   @id @default(cuid())
+  heroTitle    String                   @default("Photography & Videography")
+  heroSubtitle String?
+  heroImage    String?
+  isActive     Boolean                  @default(true)
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+  sections     PhotographyPageSection[]
+}
+
+model PhotographyPageSection {
+  id        String          @id @default(cuid())
+  pageId    String
+  page      PhotographyPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  title     String
+  content   String?         @db.Text
+  images    String[]
+  layout    String          @default("IMAGE_LEFT") // IMAGE_LEFT, IMAGE_RIGHT, FULL_WIDTH, GALLERY
+  order     Int             @default(0)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([pageId])
+  @@index([order])
+}
+
+model Page {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  blocks    Json     @default("[]")
+  isDraft   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PhotographyService {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  details       String?  @db.Text
+  price         Decimal? @db.Decimal(10, 2)
+  duration      String?
+  mainImage     String?
+  galleryImages String[]
+  features      String[]
+  category      String   @default("PHOTOGRAPHY")
+  isActive      Boolean  @default(true)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+  @@index([order])
 }

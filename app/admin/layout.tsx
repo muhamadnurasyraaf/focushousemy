@@ -37,16 +37,10 @@ export default function AdminLayout({
                   Dashboard
                 </Link>
                 <Link
-                  href="/admin/studios"
-                  className={`${isActive("/admin/studios")} px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200`}
+                  href="/admin/photography-page"
+                  className={`${isActive("/admin/photography-page")} px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200`}
                 >
-                  Packages
-                </Link>
-                <Link
-                  href="/admin/bookings"
-                  className={`${isActive("/admin/bookings")} px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200`}
-                >
-                  Sessions
+                  Photography Page
                 </Link>
                 <Link
                   href="/admin/accessories"
@@ -59,6 +53,12 @@ export default function AdminLayout({
                   className={`${isActive("/admin/repair-services")} px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200`}
                 >
                   Repairs
+                </Link>
+                <Link
+                  href="/admin/settings"
+                  className={`${isActive("/admin/settings")} px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200`}
+                >
+                  Settings
                 </Link>
               </div>
             </div>

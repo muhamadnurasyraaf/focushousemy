@@ -3,33 +3,31 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-interface Studio {
+interface SiteConfig {
   id: string;
-  name: string;
-  description: string | null;
-  location: string | null;
-  capacity: number | null;
-  pricePerHour: number;
-  pricingType: "PER_HOUR" | "PER_DAY";
-  amenities: string[];
+  heroBackgroundImage: string | null;
 }
 
 export default function Home() {
-  const [studios, setStudios] = useState<Studio[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [heroBackgroundImage, setHeroBackgroundImage] = useState<string>(
+    "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?q=80&w=2940",
+  );
 
   useEffect(() => {
     setIsLoaded(true);
-    fetchStudios();
+    fetchSiteConfig();
   }, []);
 
-  async function fetchStudios() {
+  async function fetchSiteConfig() {
     try {
-      const res = await fetch("/api/studios");
-      const data = await res.json();
-      setStudios(data);
+      const res = await fetch("/api/site-config");
+      const data: SiteConfig = await res.json();
+      if (data.heroBackgroundImage) {
+        setHeroBackgroundImage(data.heroBackgroundImage);
+      }
     } catch (error) {
-      console.error("Error fetching studios:", error);
+      console.error("Error fetching site config:", error);
     }
   }
 
@@ -44,10 +42,10 @@ export default function Home() {
             </Link>
             <div className="flex items-center space-x-8">
               <Link
-                href="#packages"
+                href="/photography"
                 className="text-sm text-white/60 hover:text-white transition-colors duration-200"
               >
-                Packages
+                Photography & Videography
               </Link>
               <Link
                 href="/accessories"
@@ -79,8 +77,7 @@ export default function Home() {
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage:
-                "url(https://images.unsplash.com/photo-1606216794074-735e91aa2c92?q=80&w=2940)",
+              backgroundImage: `url(${heroBackgroundImage})`,
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black" />
@@ -96,16 +93,16 @@ export default function Home() {
             <span className="text-white/40">Perfect Moment</span>
           </h1>
           <p className="text-xl md:text-2xl text-white/60 mb-12 max-w-2xl mx-auto font-light">
-            Professional photography sessions for graduations, families,
-            portraits, and special moments.
+            Professional photography services, camera accessories, and expert
+            repair services.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="#packages"
+            <Link
+              href="/accessories"
               className="px-8 py-4 bg-white text-black rounded-full font-medium hover:bg-white/90 transition-all duration-200 text-lg"
             >
-              View Packages
-            </a>
+              Browse Accessories
+            </Link>
             <a
               href="https://wa.me/60176754462"
               target="_blank"
@@ -135,142 +132,123 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Photography Packages Section */}
-      <section
-        id="packages"
-        className="py-32 px-6 lg:px-8 border-t border-white/10"
-      >
+      {/* Services Section */}
+      <section className="py-32 px-6 lg:px-8 border-t border-white/10">
         <div className="max-w-7xl mx-auto">
           <div className="mb-20 text-center">
             <h2 className="text-5xl md:text-6xl font-medium tracking-tight mb-6">
-              Photography Packages
+              Our Services
             </h2>
             <p className="text-xl text-white/60 max-w-2xl mx-auto font-light">
-              Choose the perfect package for your special occasion. Each session
-              includes professional editing and digital delivery.
+              Everything you need for your photography journey
             </p>
           </div>
 
-          {studios.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-white/40 text-lg">
-                No packages available at the moment. Please check back soon!
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {studios.map((studio, index) => (
-                <div
-                  key={studio.id}
-                  className={`group relative bg-white/5 rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-500 hover:transform hover:scale-[1.02] ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-                  style={{ transitionDelay: `${index * 100}ms` }}
-                >
-                  {/* Package Image Placeholder */}
-                  <div className="aspect-[4/3] bg-gradient-to-br from-white/10 to-white/5 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <h3 className="text-2xl font-medium mb-1">
-                        {studio.name}
-                      </h3>
-                    </div>
-                  </div>
-
-                  {/* Package Details */}
-                  <div className="p-6">
-                    {studio.description && (
-                      <p className="text-white/60 mb-4 line-clamp-2">
-                        {studio.description}
-                      </p>
-                    )}
-
-                    <div className="space-y-2 mb-4 text-sm">
-                      {studio.location && (
-                        <div className="flex items-center text-white/40">
-                          <svg
-                            className="h-4 w-4 mr-2"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                          </svg>
-                          {studio.location}
-                        </div>
-                      )}
-
-                      {studio.capacity && (
-                        <div className="flex items-center text-white/40">
-                          <svg
-                            className="h-4 w-4 mr-2"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                            />
-                          </svg>
-                          Up to {studio.capacity} people
-                        </div>
-                      )}
-                    </div>
-
-                    {studio.amenities.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {studio.amenities.slice(0, 3).map((amenity, i) => (
-                          <span
-                            key={i}
-                            className="px-3 py-1 bg-white/10 text-white/60 text-xs rounded-full"
-                          >
-                            {amenity}
-                          </span>
-                        ))}
-                        {studio.amenities.length > 3 && (
-                          <span className="px-3 py-1 bg-white/10 text-white/60 text-xs rounded-full">
-                            +{studio.amenities.length - 3} more
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="flex items-end justify-between pt-4 border-t border-white/10">
-                      <div>
-                        <div className="text-3xl font-medium">
-                          ${studio.pricePerHour}
-                        </div>
-                        <div className="text-white/40 text-sm">
-                          {studio.pricingType === "PER_HOUR"
-                            ? "per hour"
-                            : "per day"}
-                        </div>
-                      </div>
-
-                      <Link
-                        href={`/studios/${studio.id}/book`}
-                        className="px-6 py-3 bg-white text-black rounded-full font-medium hover:bg-white/90 transition-all duration-200 text-sm"
-                      >
-                        Book Session
-                      </Link>
-                    </div>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Accessories Card */}
+            <Link
+              href="/accessories"
+              className="group bg-white/5 rounded-2xl p-12 border border-white/10 hover:border-white/20 transition-all duration-500 hover:transform hover:scale-[1.02]"
+            >
+              <div className="flex items-center mb-6">
+                <div className="p-4 bg-white/10 rounded-xl">
+                  <svg
+                    className="h-8 w-8 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+              <h3 className="text-3xl font-medium mb-4">
+                Camera & Accessories
+              </h3>
+              <p className="text-white/60 mb-6">
+                Rent professional cameras, lenses, lighting equipment, and
+                accessories for your photography needs.
+              </p>
+              <div className="flex items-center text-white/80 group-hover:text-white transition-colors">
+                <span className="mr-2">Browse Rentals</span>
+                <svg
+                  className="h-5 w-5 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </div>
+            </Link>
+
+            {/* Repair Services Card */}
+            <Link
+              href="/repair"
+              className="group bg-white/5 rounded-2xl p-12 border border-white/10 hover:border-white/20 transition-all duration-500 hover:transform hover:scale-[1.02]"
+            >
+              <div className="flex items-center mb-6">
+                <div className="p-4 bg-white/10 rounded-xl">
+                  <svg
+                    className="h-8 w-8 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <h3 className="text-3xl font-medium mb-4">Repair Services</h3>
+              <p className="text-white/60 mb-6">
+                Expert repair and maintenance services for your camera equipment
+                and accessories.
+              </p>
+              <div className="flex items-center text-white/80 group-hover:text-white transition-colors">
+                <span className="mr-2">View Services</span>
+                <svg
+                  className="h-5 w-5 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </div>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -284,8 +262,8 @@ export default function Home() {
             Let's Create Together
           </h2>
           <p className="text-xl text-white/60 mb-12 font-light">
-            Have questions or special requests? We'd love to hear about your
-            vision and help capture your special moments.
+            Have questions or special requests? We'd love to hear from you and
+            help with your photography needs.
           </p>
           <a
             href="https://wa.me/60176754462"
@@ -306,7 +284,7 @@ export default function Home() {
               FocusHouse
             </div>
             <div className="text-white/40 text-sm">
-              © 2026 FocusHouse Photography. All rights reserved.
+              © 2026 FocusHouse. All rights reserved.
             </div>
           </div>
         </div>
