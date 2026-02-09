@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 interface SiteConfig {
   id: string;
   heroBackgroundImage: string | null;
+  contactNumber: string | null;
 }
 
 export default function SettingsPage() {
@@ -13,6 +14,9 @@ export default function SettingsPage() {
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
+  const [isSavingContact, setIsSavingContact] = useState(false);
+  const [contactMessage, setContactMessage] = useState("");
 
   useEffect(() => {
     fetchConfig();
@@ -25,6 +29,9 @@ export default function SettingsPage() {
       setConfig(data);
       if (data.heroBackgroundImage) {
         setPreviewUrl(data.heroBackgroundImage);
+      }
+      if (data.contactNumber) {
+        setContactNumber(data.contactNumber);
       }
     } catch (error) {
       console.error("Error fetching config:", error);
@@ -123,6 +130,34 @@ export default function SettingsPage() {
       setMessage("Failed to remove image");
     } finally {
       setIsUploading(false);
+    }
+  }
+
+  async function handleSaveContact(e: React.FormEvent) {
+    e.preventDefault();
+    setIsSavingContact(true);
+    setContactMessage("");
+
+    try {
+      const res = await fetch("/api/site-config", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contactNumber: contactNumber || null }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setConfig(data);
+        setContactMessage("Contact number saved!");
+        setTimeout(() => setContactMessage(""), 3000);
+      } else {
+        setContactMessage("Failed to save contact number");
+      }
+    } catch (error) {
+      console.error("Error saving contact number:", error);
+      setContactMessage("Failed to save contact number");
+    } finally {
+      setIsSavingContact(false);
     }
   }
 
@@ -260,6 +295,58 @@ export default function SettingsPage() {
               {isUploading ? "Uploading..." : "Upload Image"}
             </button>
           </div>
+        </div>
+      </form>
+
+      {/* Contact Number Section */}
+      <form onSubmit={handleSaveContact} className="mt-8 space-y-8">
+        <div className="bg-white/5 rounded-2xl p-8 border border-white/10">
+          <h2 className="text-2xl font-medium mb-2">WhatsApp Contact Number</h2>
+          <p className="text-white/60 text-sm mb-6">
+            Set the WhatsApp contact number used across the site for "Contact
+            Us" links. Include country code without + sign (e.g. 60176754462).
+          </p>
+
+          <div className="space-y-4">
+            <div>
+              <label
+                htmlFor="contactNumber"
+                className="block text-sm font-medium mb-2"
+              >
+                Phone Number
+              </label>
+              <input
+                type="text"
+                id="contactNumber"
+                value={contactNumber}
+                onChange={(e) => setContactNumber(e.target.value)}
+                placeholder="60176754462"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-colors"
+              />
+              <p className="text-white/40 text-xs mt-2">
+                This number will be used for all WhatsApp links on the website.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div>
+            {contactMessage && (
+              <span
+                className={`text-sm ${contactMessage.includes("saved") ? "text-green-400" : "text-red-400"}`}
+              >
+                {contactMessage}
+              </span>
+            )}
+          </div>
+          <button
+            type="submit"
+            disabled={isSavingContact}
+            className="px-6 py-3 bg-white text-black rounded-full font-medium hover:bg-white/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSavingContact ? "Saving..." : "Save Contact Number"}
+          </button>
         </div>
       </form>
 

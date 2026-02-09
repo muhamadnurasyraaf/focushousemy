@@ -401,15 +401,21 @@ function RenderBlock({ block }: { block: Block }) {
 
 // ── Page ────────────────────────────────────────────────────────────────
 
+const DEFAULT_CONTACT = "60176754462";
+
 export default function PhotographyPublicPage() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
+  const [contactNumber, setContactNumber] = useState(DEFAULT_CONTACT);
 
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch("/api/pages/photography");
-        const data = await res.json();
+        const [pageRes, configRes] = await Promise.all([
+          fetch("/api/pages/photography"),
+          fetch("/api/site-config"),
+        ]);
+        const data = await pageRes.json();
         if (data.isDraft === false && Array.isArray(data.blocks)) {
           setBlocks(
             data.blocks.sort((a: Block, b: Block) => a.order - b.order),
@@ -419,6 +425,10 @@ export default function PhotographyPublicPage() {
           setBlocks(
             data.blocks.sort((a: Block, b: Block) => a.order - b.order),
           );
+        }
+        const configData = await configRes.json();
+        if (configData.contactNumber) {
+          setContactNumber(configData.contactNumber);
         }
       } catch (err) {
         console.error("Failed to load page:", err);
@@ -447,6 +457,12 @@ export default function PhotographyPublicPage() {
               FocusHouse
             </Link>
             <div className="flex items-center space-x-8">
+              <Link
+                href="/"
+                className="text-sm text-white/60 hover:text-white transition-colors duration-200"
+              >
+                Home
+              </Link>
               <Link
                 href="/photography"
                 className="text-sm text-white hover:text-white transition-colors duration-200"
@@ -510,7 +526,7 @@ export default function PhotographyPublicPage() {
             We&apos;ll work with you to create unforgettable memories.
           </p>
           <a
-            href="https://wa.me/60176754462"
+            href={`https://wa.me/${contactNumber}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block px-8 py-4 bg-white text-black rounded-full font-medium hover:bg-white/90 transition-all duration-200 text-lg"

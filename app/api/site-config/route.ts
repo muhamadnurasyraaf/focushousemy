@@ -29,23 +29,27 @@ export async function GET() {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { heroBackgroundImage } = body;
+    const { heroBackgroundImage, contactNumber } = body;
 
     // Get existing config or create one
     let config = await prisma.siteConfig.findFirst();
 
+    const updateData: Record<string, unknown> = {};
+    if ("heroBackgroundImage" in body)
+      updateData.heroBackgroundImage = heroBackgroundImage;
+    if ("contactNumber" in body) updateData.contactNumber = contactNumber;
+
     if (!config) {
       config = await prisma.siteConfig.create({
         data: {
-          heroBackgroundImage,
+          heroBackgroundImage: heroBackgroundImage ?? null,
+          contactNumber: contactNumber ?? null,
         },
       });
     } else {
       config = await prisma.siteConfig.update({
         where: { id: config.id },
-        data: {
-          heroBackgroundImage,
-        },
+        data: updateData,
       });
     }
 

@@ -37,6 +37,12 @@ export default function AdminLayout({
                   Dashboard
                 </Link>
                 <Link
+                  href="/admin/home-page"
+                  className={`${isActive("/admin/home-page")} px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200`}
+                >
+                  Home Page
+                </Link>
+                <Link
                   href="/admin/photography-page"
                   className={`${isActive("/admin/photography-page")} px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200`}
                 >

@@ -183,6 +183,31 @@ export default function AdminDashboard() {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-12">
         <Link
+          href="/admin/home-page"
+          className="group bg-white/5 rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-200 hover:bg-white/10"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-medium">Home Page</h3>
+            <svg
+              className="h-5 w-5 text-white/40 group-hover:text-white transition-colors"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </div>
+          <p className="text-white/60 text-sm">
+            Edit home page content and layout
+          </p>
+        </Link>
+
+        <Link
           href="/admin/photography-page"
           className="group bg-white/5 rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-200 hover:bg-white/10"
         >
