@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import ContactSection from "@/components/contact-section";
 
 interface RepairService {
   id: string;
@@ -100,16 +101,44 @@ export default function RepairPage() {
                 Home
               </Link>
               <Link
-                href="/accessories"
+                href="/photography"
                 className="text-sm text-white/60 hover:text-white transition-colors duration-200"
               >
-                Accessories
+                Photography and Videography
               </Link>
+              <div className="relative group">
+                <Link
+                  href="/accessories"
+                  className="text-sm text-white/60 hover:text-white transition-colors duration-200"
+                >
+                  Sewa Camera Jb
+                </Link>
+                <div className="absolute top-full left-0 mt-2 w-48 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <Link
+                    href="/accessories"
+                    className="block px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors duration-200"
+                  >
+                    Combo Package
+                  </Link>
+                  <Link
+                    href="/agreement"
+                    className="block px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors duration-200"
+                  >
+                    Agreement
+                  </Link>
+                </div>
+              </div>
               <Link
                 href="/repair"
                 className="text-sm text-white hover:text-white transition-colors duration-200"
               >
-                Repairs
+                Repair
+              </Link>
+              <Link
+                href="/contact"
+                className="text-sm text-white/60 hover:text-white transition-colors duration-200"
+              >
+                Contact
               </Link>
             </div>
           </div>
@@ -395,51 +424,7 @@ export default function RepairPage() {
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-32 px-6 lg:px-8 border-t border-white/10">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-16 text-center">
-            <h2 className="text-5xl md:text-6xl font-medium tracking-tight mb-4">
-              How It Works
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-medium">1</span>
-              </div>
-              <h3 className="text-xl font-medium mb-3">Submit Request</h3>
-              <p className="text-white/60">
-                Fill out the repair request form with details about your
-                equipment issue.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-medium">2</span>
-              </div>
-              <h3 className="text-xl font-medium mb-3">Get Quote</h3>
-              <p className="text-white/60">
-                Our technicians will assess the issue and provide a detailed
-                quote within 24 hours.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-medium">3</span>
-              </div>
-              <h3 className="text-xl font-medium mb-3">Repair & Return</h3>
-              <p className="text-white/60">
-                Once approved, we'll repair your equipment and notify you when
-                it's ready.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ContactSection />
 
       {/* Footer */}
       <footer className="border-t border-white/10 py-12 px-6 lg:px-8">

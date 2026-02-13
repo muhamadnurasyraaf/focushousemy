@@ -6,6 +6,9 @@ interface SiteConfig {
   id: string;
   heroBackgroundImage: string | null;
   contactNumber: string | null;
+  instagram: string | null;
+  facebook: string | null;
+  address: string | null;
 }
 
 export default function SettingsPage() {
@@ -17,6 +20,11 @@ export default function SettingsPage() {
   const [contactNumber, setContactNumber] = useState("");
   const [isSavingContact, setIsSavingContact] = useState(false);
   const [contactMessage, setContactMessage] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [facebook, setFacebook] = useState("");
+  const [address, setAddress] = useState("");
+  const [isSavingSocial, setIsSavingSocial] = useState(false);
+  const [socialMessage, setSocialMessage] = useState("");
 
   useEffect(() => {
     fetchConfig();
@@ -32,6 +40,15 @@ export default function SettingsPage() {
       }
       if (data.contactNumber) {
         setContactNumber(data.contactNumber);
+      }
+      if (data.instagram) {
+        setInstagram(data.instagram);
+      }
+      if (data.facebook) {
+        setFacebook(data.facebook);
+      }
+      if (data.address) {
+        setAddress(data.address);
       }
     } catch (error) {
       console.error("Error fetching config:", error);
@@ -346,6 +363,123 @@ export default function SettingsPage() {
             className="px-6 py-3 bg-white text-black rounded-full font-medium hover:bg-white/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSavingContact ? "Saving..." : "Save Contact Number"}
+          </button>
+        </div>
+      </form>
+
+      {/* Social Media & Address Section */}
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setIsSavingSocial(true);
+          setSocialMessage("");
+          try {
+            const res = await fetch("/api/site-config", {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                instagram: instagram || null,
+                facebook: facebook || null,
+                address: address || null,
+              }),
+            });
+            if (res.ok) {
+              const data = await res.json();
+              setConfig(data);
+              setSocialMessage("Social media & address saved!");
+              setTimeout(() => setSocialMessage(""), 3000);
+            } else {
+              setSocialMessage("Failed to save settings");
+            }
+          } catch (error) {
+            console.error("Error saving social settings:", error);
+            setSocialMessage("Failed to save settings");
+          } finally {
+            setIsSavingSocial(false);
+          }
+        }}
+        className="mt-8 space-y-8"
+      >
+        <div className="bg-white/5 rounded-2xl p-8 border border-white/10">
+          <h2 className="text-2xl font-medium mb-2">Social Media & Address</h2>
+          <p className="text-white/60 text-sm mb-6">
+            Configure your social media links and business address shown in the
+            Contact section across the site.
+          </p>
+
+          <div className="space-y-4">
+            <div>
+              <label
+                htmlFor="instagram"
+                className="block text-sm font-medium mb-2"
+              >
+                Instagram URL
+              </label>
+              <input
+                type="text"
+                id="instagram"
+                value={instagram}
+                onChange={(e) => setInstagram(e.target.value)}
+                placeholder="https://www.instagram.com/yourusername"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-colors"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="facebook"
+                className="block text-sm font-medium mb-2"
+              >
+                Facebook URL
+              </label>
+              <input
+                type="text"
+                id="facebook"
+                value={facebook}
+                onChange={(e) => setFacebook(e.target.value)}
+                placeholder="https://www.facebook.com/yourpage"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-colors"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="address"
+                className="block text-sm font-medium mb-2"
+              >
+                Business Address
+              </label>
+              <input
+                type="text"
+                id="address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="123 Main Street, Johor Bahru, Johor, Malaysia"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-colors"
+              />
+              <p className="text-white/40 text-xs mt-2">
+                This will be linked to Google Maps automatically.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div>
+            {socialMessage && (
+              <span
+                className={`text-sm ${socialMessage.includes("saved") ? "text-green-400" : "text-red-400"}`}
+              >
+                {socialMessage}
+              </span>
+            )}
+          </div>
+          <button
+            type="submit"
+            disabled={isSavingSocial}
+            className="px-6 py-3 bg-white text-black rounded-full font-medium hover:bg-white/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSavingSocial ? "Saving..." : "Save Social & Address"}
           </button>
         </div>
       </form>

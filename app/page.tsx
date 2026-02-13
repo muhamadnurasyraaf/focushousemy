@@ -503,7 +503,53 @@ function FallbackHome() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Link
+              href="/photography"
+              className="group bg-white/5 rounded-2xl p-12 border border-white/10 hover:border-white/20 transition-all duration-500 hover:transform hover:scale-[1.02]"
+            >
+              <div className="flex items-center mb-6">
+                <div className="p-4 bg-white/10 rounded-xl">
+                  <svg
+                    className="h-8 w-8 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <h3 className="text-3xl font-medium mb-4">
+                Photography & Videography
+              </h3>
+              <p className="text-white/60 mb-6">
+                Professional photography and videography services for
+                graduations, events, portraits, and more.
+              </p>
+              <div className="flex items-center text-white/80 group-hover:text-white transition-colors">
+                <span className="mr-2">View Packages</span>
+                <svg
+                  className="h-5 w-5 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </div>
+            </Link>
+
             <Link
               href="/accessories"
               className="group bg-white/5 rounded-2xl p-12 border border-white/10 hover:border-white/20 transition-all duration-500 hover:transform hover:scale-[1.02]"
@@ -628,7 +674,7 @@ function FallbackHome() {
             rel="noopener noreferrer"
             className="inline-block px-8 py-4 bg-white text-black rounded-full font-medium hover:bg-white/90 transition-all duration-200 text-lg"
           >
-            Get in Touch
+            Contact Us on WhatsApp
           </a>
         </div>
       </section>
@@ -691,26 +737,42 @@ export default function Home() {
                 href="/photography"
                 className="text-sm text-white/60 hover:text-white transition-colors duration-200"
               >
-                Photography & Videography
+                Photography and Videography
               </Link>
-              <Link
-                href="/accessories"
-                className="text-sm text-white/60 hover:text-white transition-colors duration-200"
-              >
-                Accessories
-              </Link>
+              <div className="relative group">
+                <Link
+                  href="/accessories"
+                  className="text-sm text-white/60 hover:text-white transition-colors duration-200"
+                >
+                  Sewa Camera Jb
+                </Link>
+                <div className="absolute top-full left-0 mt-2 w-48 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <Link
+                    href="/accessories"
+                    className="block px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors duration-200"
+                  >
+                    Combo Package
+                  </Link>
+                  <Link
+                    href="/agreement"
+                    className="block px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors duration-200"
+                  >
+                    Agreement
+                  </Link>
+                </div>
+              </div>
               <Link
                 href="/repair"
                 className="text-sm text-white/60 hover:text-white transition-colors duration-200"
               >
-                Repairs
+                Repair
               </Link>
-              <a
-                href="#contact"
+              <Link
+                href="/contact"
                 className="text-sm text-white/60 hover:text-white transition-colors duration-200"
               >
                 Contact
-              </a>
+              </Link>
             </div>
           </div>
         </div>

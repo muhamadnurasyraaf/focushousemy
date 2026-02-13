@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import ContactSection from "@/components/contact-section";
 
 interface Accessory {
   id: string;
@@ -18,10 +19,17 @@ export default function AccessoriesPage() {
   const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [contactNumber, setContactNumber] = useState("60176754462");
 
   useEffect(() => {
     setIsLoaded(true);
     fetchAccessories();
+    fetch("/api/site-config")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.contactNumber) setContactNumber(data.contactNumber);
+      })
+      .catch(() => {});
   }, []);
 
   async function fetchAccessories() {
@@ -63,16 +71,44 @@ export default function AccessoriesPage() {
                 Home
               </Link>
               <Link
-                href="/accessories"
-                className="text-sm text-white hover:text-white transition-colors duration-200"
+                href="/photography"
+                className="text-sm text-white/60 hover:text-white transition-colors duration-200"
               >
-                Accessories
+                Photography and Videography
               </Link>
+              <div className="relative group">
+                <Link
+                  href="/accessories"
+                  className="text-sm text-white hover:text-white transition-colors duration-200"
+                >
+                  Sewa Camera Jb
+                </Link>
+                <div className="absolute top-full left-0 mt-2 w-48 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <Link
+                    href="/accessories"
+                    className="block px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors duration-200"
+                  >
+                    Combo Package
+                  </Link>
+                  <Link
+                    href="/agreement"
+                    className="block px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors duration-200"
+                  >
+                    Agreement
+                  </Link>
+                </div>
+              </div>
               <Link
                 href="/repair"
                 className="text-sm text-white/60 hover:text-white transition-colors duration-200"
               >
-                Repairs
+                Repair
+              </Link>
+              <Link
+                href="/contact"
+                className="text-sm text-white/60 hover:text-white transition-colors duration-200"
+              >
+                Contact
               </Link>
             </div>
           </div>
@@ -257,24 +293,7 @@ export default function AccessoriesPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-32 px-6 lg:px-8 border-t border-white/10">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-5xl md:text-6xl font-medium tracking-tight mb-6">
-            Need Something Specific?
-          </h2>
-          <p className="text-xl text-white/60 mb-12 font-light">
-            Can't find the equipment you're looking for? Contact us and we'll do
-            our best to accommodate your needs.
-          </p>
-          <a
-            href="mailto:hello@focushouse.com"
-            className="inline-block px-8 py-4 bg-white text-black rounded-full font-medium hover:bg-white/90 transition-all duration-200 text-lg"
-          >
-            Contact Us
-          </a>
-        </div>
-      </section>
+      <ContactSection />
 
       {/* Footer */}
       <footer className="border-t border-white/10 py-12 px-6 lg:px-8">
