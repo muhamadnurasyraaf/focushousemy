@@ -10,53 +10,57 @@ datasource db {
 }
 
 model User {
-  id             String            @id @default(cuid())
+  id             String          @id @default(cuid())
   name           String?
-  email          String            @unique
+  email          String          @unique
   password       String
-  role           UserRole          @default(USER)
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-  rentals        AccessoryRental[]
+  role           UserRole        @default(USER)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
   repairRequests RepairRequest[]
 }
 
 model Accessory {
-  id          String            @id @default(cuid())
+  id          String               @id @default(cuid())
   name        String
   description String?
   category    String?
-  quantity    Int               @default(1)
-  pricePerDay Decimal           @db.Decimal(10, 2)
+  quantity    Int                  @default(1)
+  pricePerDay Decimal              @db.Decimal(10, 2)
   images      String[]
-  isActive    Boolean           @default(true)
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  rentals     AccessoryRental[]
+  isActive    Boolean              @default(true)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  comboItems  AccessoryComboItem[]
 }
 
-model AccessoryRental {
-  id            String        @id @default(cuid())
-  accessoryId   String
-  accessory     Accessory     @relation(fields: [accessoryId], references: [id], onDelete: Cascade)
-  userId        String?
-  user          User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  customerName  String
-  customerEmail String
-  customerPhone String?
-  startDate     DateTime
-  endDate       DateTime
-  quantity      Int           @default(1)
-  totalPrice    Decimal       @db.Decimal(10, 2)
-  status        BookingStatus @default(PENDING)
-  notes         String?
-  cancelReason  String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+model AccessoryCombo {
+  id          String               @id @default(cuid())
+  name        String
+  description String?
+  price       Decimal              @db.Decimal(10, 2)
+  images      String[]
+  isActive    Boolean              @default(true)
+  order       Int                  @default(0)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  items       AccessoryComboItem[]
 
+  @@index([isActive])
+  @@index([order])
+}
+
+model AccessoryComboItem {
+  id          String         @id @default(cuid())
+  comboId     String
+  combo       AccessoryCombo @relation(fields: [comboId], references: [id], onDelete: Cascade)
+  accessoryId String
+  accessory   Accessory      @relation(fields: [accessoryId], references: [id], onDelete: Cascade)
+  quantity    Int            @default(1)
+  createdAt   DateTime       @default(now())
+
+  @@index([comboId])
   @@index([accessoryId])
-  @@index([userId])
-  @@index([status])
 }
 
 model RepairService {
@@ -96,13 +100,6 @@ model RepairRequest {
 enum UserRole {
   ADMIN
   USER
-}
-
-enum BookingStatus {
-  PENDING
-  APPROVED
-  CANCELLED
-  COMPLETED
 }
 
 enum RepairRequestStatus {

@@ -90,7 +90,15 @@ export default function RepairPage() {
       <nav className="fixed w-full top-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <Link href="/" className="text-2xl font-medium tracking-tight">
+            <Link
+              href="/"
+              className="flex items-center gap-2 text-2xl font-medium tracking-tight"
+            >
+              <img
+                src="/focus_house_icon.jpeg"
+                alt="FocusHouse"
+                className="h-8 w-8 rounded"
+              />
               FocusHouse
             </Link>
             <div className="flex items-center space-x-8">
@@ -115,13 +123,13 @@ export default function RepairPage() {
                 </Link>
                 <div className="absolute top-full left-0 mt-2 w-48 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                   <Link
-                    href="/accessories"
+                    href="/accessories?tab=combo"
                     className="block px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors duration-200"
                   >
                     Combo Package
                   </Link>
                   <Link
-                    href="/agreement"
+                    href="/accessories?tab=agreement"
                     className="block px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors duration-200"
                   >
                     Agreement

@@ -1,37 +1,64 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
 interface Accessory {
   id: string;
   name: string;
-  description: string | null;
-  category: string | null;
-  quantity: number;
   pricePerDay: number;
-  images: string[];
-  isActive: boolean;
 }
 
-export default function AccessoriesPage() {
+interface ComboItem {
+  id: string;
+  accessory: Accessory;
+  quantity: number;
+}
+
+interface Combo {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  images: string[];
+  isActive: boolean;
+  order: number;
+  items: ComboItem[];
+}
+
+interface FormItem {
+  accessoryId: string;
+  quantity: number;
+}
+
+export default function AdminCombosPage() {
+  const [combos, setCombos] = useState<Combo[]>([]);
   const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    category: "",
-    quantity: "1",
-    pricePerDay: "",
+    price: "",
+    images: "",
     isActive: true,
+    order: "0",
   });
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [formItems, setFormItems] = useState<FormItem[]>([]);
 
   useEffect(() => {
+    fetchCombos();
     fetchAccessories();
   }, []);
+
+  async function fetchCombos() {
+    try {
+      const res = await fetch("/api/accessory-combos");
+      const data = await res.json();
+      setCombos(data);
+    } catch (error) {
+      console.error("Error fetching combos:", error);
+    }
+  }
 
   async function fetchAccessories() {
     try {
@@ -43,17 +70,22 @@ export default function AccessoriesPage() {
     }
   }
 
-  function handleEdit(accessory: Accessory) {
-    setEditingId(accessory.id);
+  function handleEdit(combo: Combo) {
+    setEditingId(combo.id);
     setFormData({
-      name: accessory.name,
-      description: accessory.description || "",
-      category: accessory.category || "",
-      quantity: accessory.quantity.toString(),
-      pricePerDay: accessory.pricePerDay.toString(),
-      isActive: accessory.isActive,
+      name: combo.name,
+      description: combo.description || "",
+      price: combo.price.toString(),
+      images: combo.images.join(", "),
+      isActive: combo.isActive,
+      order: combo.order.toString(),
     });
-    setImageUrls(accessory.images);
+    setFormItems(
+      combo.items.map((item) => ({
+        accessoryId: item.accessory.id,
+        quantity: item.quantity,
+      })),
+    );
     setShowForm(true);
   }
 
@@ -63,106 +95,92 @@ export default function AccessoriesPage() {
     setFormData({
       name: "",
       description: "",
-      category: "",
-      quantity: "1",
-      pricePerDay: "",
+      price: "",
+      images: "",
       isActive: true,
+      order: "0",
     });
-    setImageUrls([]);
+    setFormItems([]);
   }
 
-  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  function addItem() {
+    setFormItems([...formItems, { accessoryId: "", quantity: 1 }]);
+  }
 
-    setUploading(true);
-    try {
-      for (const file of Array.from(files)) {
-        const formData = new FormData();
-        formData.append("file", file);
+  function removeItem(index: number) {
+    setFormItems(formItems.filter((_, i) => i !== index));
+  }
 
-        const res = await fetch("/api/upload/accessory-image", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          setImageUrls((prev) => [...prev, data.path]);
-        } else {
-          const err = await res.json();
-          alert(err.error || "Failed to upload image");
-        }
-      }
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      alert("Failed to upload image");
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+  function updateItem(index: number, field: keyof FormItem, value: string | number) {
+    const updated = [...formItems];
+    if (field === "quantity") {
+      updated[index].quantity = Number(value);
+    } else {
+      updated[index].accessoryId = value as string;
     }
-  }
-
-  function removeImage(index: number) {
-    setImageUrls((prev) => prev.filter((_, i) => i !== index));
+    setFormItems(updated);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
       const url = editingId
-        ? `/api/accessories/${editingId}`
-        : "/api/accessories";
+        ? `/api/accessory-combos/${editingId}`
+        : "/api/accessory-combos";
       const method = editingId ? "PUT" : "POST";
 
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...formData,
-          images: imageUrls,
-          pricePerDay: parseFloat(formData.pricePerDay),
-          quantity: parseInt(formData.quantity),
+          name: formData.name,
+          description: formData.description || null,
+          price: parseFloat(formData.price),
+          images: formData.images
+            .split(",")
+            .map((img) => img.trim())
+            .filter(Boolean),
+          isActive: formData.isActive,
+          order: parseInt(formData.order),
+          items: formItems.filter((item) => item.accessoryId),
         }),
       });
 
       if (res.ok) {
         handleCancelEdit();
-        fetchAccessories();
+        fetchCombos();
       }
     } catch (error) {
-      console.error("Error saving accessory:", error);
+      console.error("Error saving combo:", error);
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to delete this accessory?")) return;
+    if (!confirm("Are you sure you want to delete this combo?")) return;
 
     try {
-      const res = await fetch(`/api/accessories/${id}`, {
+      const res = await fetch(`/api/accessory-combos/${id}`, {
         method: "DELETE",
       });
 
       if (res.ok) {
-        fetchAccessories();
+        fetchCombos();
       }
     } catch (error) {
-      console.error("Error deleting accessory:", error);
+      console.error("Error deleting combo:", error);
     }
   }
 
   async function toggleStatus(id: string, currentStatus: boolean) {
     try {
-      const res = await fetch(`/api/accessories/${id}`, {
+      const res = await fetch(`/api/accessory-combos/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isActive: !currentStatus }),
       });
 
       if (res.ok) {
-        fetchAccessories();
+        fetchCombos();
       }
     } catch (error) {
       console.error("Error toggling status:", error);
@@ -173,14 +191,17 @@ export default function AccessoriesPage() {
     <div className="max-w-7xl mx-auto py-12 px-6 lg:px-8">
       <div className="flex justify-between items-center mb-12">
         <h1 className="text-5xl font-medium tracking-tight">
-          Accessories & Cameras
+          Combo Packages
         </h1>
         {!showForm && (
           <button
-            onClick={() => setShowForm(true)}
+            onClick={() => {
+              setShowForm(true);
+              setFormItems([{ accessoryId: "", quantity: 1 }]);
+            }}
             className="px-6 py-3 bg-white text-black rounded-full font-medium hover:bg-white/90 transition-all duration-200"
           >
-            Add Accessory
+            Add Combo
           </button>
         )}
       </div>
@@ -189,7 +210,7 @@ export default function AccessoriesPage() {
         <div className="bg-white/5 rounded-2xl p-8 border border-white/10 mb-12">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-medium">
-              {editingId ? "Edit Accessory" : "Create New Accessory"}
+              {editingId ? "Edit Combo" : "Create New Combo"}
             </h2>
             <button
               onClick={handleCancelEdit}
@@ -213,7 +234,7 @@ export default function AccessoriesPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-white/60 mb-2">
-                Accessory Name *
+                Combo Name *
               </label>
               <input
                 type="text"
@@ -223,7 +244,7 @@ export default function AccessoriesPage() {
                   setFormData({ ...formData, name: e.target.value })
                 }
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors text-white placeholder:text-white/20"
-                placeholder="e.g., Canon EOS R5, Lighting Kit, Backdrop Stand"
+                placeholder="e.g., Wedding Photography Combo"
               />
             </div>
 
@@ -238,148 +259,128 @@ export default function AccessoriesPage() {
                 }
                 rows={3}
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors text-white placeholder:text-white/20 resize-none"
-                placeholder="Describe the accessory specifications and features"
+                placeholder="Describe what this combo package includes"
               />
             </div>
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium text-white/60 mb-2">
-                  Category
-                </label>
-                <input
-                  type="text"
-                  value={formData.category}
-                  onChange={(e) =>
-                    setFormData({ ...formData, category: e.target.value })
-                  }
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors text-white placeholder:text-white/20"
-                  placeholder="Camera, Lens, Lighting, Backdrop"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white/60 mb-2">
-                  Quantity Available *
+                  Combo Price (RM) *
                 </label>
                 <input
                   type="number"
                   required
-                  min="1"
-                  value={formData.quantity}
+                  step="0.01"
+                  value={formData.price}
                   onChange={(e) =>
-                    setFormData({ ...formData, quantity: e.target.value })
+                    setFormData({ ...formData, price: e.target.value })
                   }
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors text-white placeholder:text-white/20"
-                  placeholder="1"
+                  placeholder="150.00"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-white/60 mb-2">
+                  Display Order
+                </label>
+                <input
+                  type="number"
+                  value={formData.order}
+                  onChange={(e) =>
+                    setFormData({ ...formData, order: e.target.value })
+                  }
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors text-white placeholder:text-white/20"
+                  placeholder="0"
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-white/60 mb-2">
-                Price per Day (RM) *
+                Images (comma-separated URLs)
               </label>
               <input
-                type="number"
-                required
-                step="0.01"
-                value={formData.pricePerDay}
+                type="text"
+                value={formData.images}
                 onChange={(e) =>
-                  setFormData({ ...formData, pricePerDay: e.target.value })
+                  setFormData({ ...formData, images: e.target.value })
                 }
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors text-white placeholder:text-white/20"
-                placeholder="50.00"
+                placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
               />
             </div>
 
-            {/* Image Upload */}
+            {/* Combo Items */}
             <div>
-              <label className="block text-sm font-medium text-white/60 mb-2">
-                Images
-              </label>
-
-              {/* Image Previews */}
-              {imageUrls.length > 0 && (
-                <div className="flex flex-wrap gap-3 mb-3">
-                  {imageUrls.map((url, index) => (
-                    <div
-                      key={index}
-                      className="relative group w-24 h-24 rounded-lg overflow-hidden border border-white/10"
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-sm font-medium text-white/60">
+                  Included Accessories
+                </label>
+                <button
+                  type="button"
+                  onClick={addItem}
+                  className="text-sm text-white/60 hover:text-white transition-colors px-3 py-1 border border-white/10 rounded-full hover:border-white/20"
+                >
+                  + Add Item
+                </button>
+              </div>
+              <div className="space-y-3">
+                {formItems.map((item, index) => (
+                  <div key={index} className="flex gap-3 items-center">
+                    <select
+                      value={item.accessoryId}
+                      onChange={(e) =>
+                        updateItem(index, "accessoryId", e.target.value)
+                      }
+                      className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors text-white"
                     >
-                      <img
-                        src={url}
-                        alt={`Image ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                      >
-                        <svg
-                          className="w-5 h-5 text-red-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white/60 hover:bg-white/10 hover:text-white transition-colors disabled:opacity-50"
-              >
-                {uploading ? (
-                  <span className="flex items-center gap-2">
-                    <svg
-                      className="w-4 h-4 animate-spin"
-                      fill="none"
-                      viewBox="0 0 24 24"
+                      <option value="" className="bg-black">
+                        Select accessory...
+                      </option>
+                      {accessories.map((a) => (
+                        <option key={a.id} value={a.id} className="bg-black">
+                          {a.name} (RM{a.pricePerDay}/day)
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        updateItem(index, "quantity", e.target.value)
+                      }
+                      className="w-20 px-3 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors text-white text-center"
+                      placeholder="Qty"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeItem(index)}
+                      className="p-2 text-red-400 hover:text-red-300 transition-colors"
                     >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
                         stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                      />
-                    </svg>
-                    Uploading...
-                  </span>
-                ) : (
-                  "Upload Images"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+                {formItems.length === 0 && (
+                  <p className="text-white/30 text-sm py-2">
+                    No accessories added yet. Click &quot;+ Add Item&quot; to include accessories.
+                  </p>
                 )}
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                multiple
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-              <p className="text-xs text-white/30 mt-1">
-                JPEG, PNG, or WebP. Max 5MB each.
-              </p>
+              </div>
             </div>
 
             {editingId && (
@@ -397,7 +398,7 @@ export default function AccessoriesPage() {
                   htmlFor="isActive"
                   className="ml-2 text-sm text-white/60"
                 >
-                  Accessory is active and visible
+                  Combo is active and visible
                 </label>
               </div>
             )}
@@ -414,28 +415,26 @@ export default function AccessoriesPage() {
                 type="submit"
                 className="px-8 py-3 bg-white text-black rounded-full font-medium hover:bg-white/90 transition-all duration-200"
               >
-                {editingId ? "Update Accessory" : "Create Accessory"}
+                {editingId ? "Update Combo" : "Create Combo"}
               </button>
             </div>
           </form>
         </div>
       )}
 
+      {/* Combos List */}
       <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
         <table className="min-w-full divide-y divide-white/10">
           <thead>
             <tr className="bg-white/5">
               <th className="px-6 py-4 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
-                Item Name
+                Combo Name
               </th>
               <th className="px-6 py-4 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
-                Category
+                Items
               </th>
               <th className="px-6 py-4 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
-                Quantity
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
-                Price/Day
+                Price
               </th>
               <th className="px-6 py-4 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
                 Status
@@ -446,75 +445,66 @@ export default function AccessoriesPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/10">
-            {accessories.length === 0 ? (
+            {combos.length === 0 ? (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={5}
                   className="px-6 py-12 text-center text-white/40"
                 >
-                  No accessories yet. Create your first accessory listing!
+                  No combo packages yet. Create your first combo!
                 </td>
               </tr>
             ) : (
-              accessories.map((accessory) => (
+              combos.map((combo) => (
                 <tr
-                  key={accessory.id}
+                  key={combo.id}
                   className="hover:bg-white/5 transition-colors"
                 >
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      {accessory.images.length > 0 && (
-                        <img
-                          src={accessory.images[0]}
-                          alt={accessory.name}
-                          className="w-10 h-10 rounded-lg object-cover"
-                        />
-                      )}
-                      <div>
-                        <div className="text-sm font-medium">
-                          {accessory.name}
-                        </div>
-                        {accessory.description && (
-                          <div className="text-sm text-white/40 line-clamp-1">
-                            {accessory.description}
-                          </div>
-                        )}
+                    <div className="text-sm font-medium">{combo.name}</div>
+                    {combo.description && (
+                      <div className="text-sm text-white/40 line-clamp-1">
+                        {combo.description}
                       </div>
-                    </div>
+                    )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white/60">
-                    {accessory.category || "-"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white/60">
-                    {accessory.quantity}
+                  <td className="px-6 py-4 text-sm text-white/60">
+                    {combo.items.length === 0
+                      ? "-"
+                      : combo.items
+                          .map(
+                            (item) =>
+                              `${item.quantity > 1 ? item.quantity + "x " : ""}${item.accessory.name}`,
+                          )
+                          .join(", ")}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    RM{accessory.pricePerDay}
+                    RM{combo.price}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <button
                       onClick={() =>
-                        toggleStatus(accessory.id, accessory.isActive)
+                        toggleStatus(combo.id, combo.isActive)
                       }
                       className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full transition-colors ${
-                        accessory.isActive
+                        combo.isActive
                           ? "bg-green-500/20 text-green-400 hover:bg-green-500/30"
                           : "bg-red-500/20 text-red-400 hover:bg-red-500/30"
                       }`}
                     >
-                      {accessory.isActive ? "Active" : "Inactive"}
+                      {combo.isActive ? "Active" : "Inactive"}
                     </button>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end gap-3">
                       <button
-                        onClick={() => handleEdit(accessory)}
+                        onClick={() => handleEdit(combo)}
                         className="text-white/60 hover:text-white transition-colors"
                       >
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(accessory.id)}
+                        onClick={() => handleDelete(combo.id)}
                         className="text-red-400 hover:text-red-300 transition-colors"
                       >
                         Delete

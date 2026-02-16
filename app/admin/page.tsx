@@ -6,7 +6,7 @@ import Link from "next/link";
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalAccessories: 0,
-    totalRentals: 0,
+    totalCombos: 0,
     totalRepairServices: 0,
     totalRepairRequests: 0,
   });
@@ -17,22 +17,22 @@ export default function AdminDashboard() {
 
   async function fetchStats() {
     try {
-      const [accessoriesRes, rentalsRes, repairServicesRes, repairRequestsRes] =
+      const [accessoriesRes, combosRes, repairServicesRes, repairRequestsRes] =
         await Promise.all([
           fetch("/api/accessories"),
-          fetch("/api/accessory-rentals"),
+          fetch("/api/accessory-combos"),
           fetch("/api/repair-services"),
           fetch("/api/repair-requests"),
         ]);
 
       const accessories = await accessoriesRes.json();
-      const rentals = await rentalsRes.json();
+      const combos = await combosRes.json();
       const repairServices = await repairServicesRes.json();
       const repairRequests = await repairRequestsRes.json();
 
       setStats({
         totalAccessories: accessories.length,
-        totalRentals: rentals.length,
+        totalCombos: combos.length,
         totalRepairServices: repairServices.length,
         totalRepairRequests: repairRequests.length,
       });
@@ -47,34 +47,6 @@ export default function AdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-12">
-        <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-          <div className="flex items-center mb-4">
-            <div className="p-3 bg-white/10 rounded-lg">
-              <svg
-                className="h-6 w-6 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-            </div>
-          </div>
-          <div className="text-sm text-white/60 mb-1">Total Rentals</div>
-          <div className="text-3xl font-medium">{stats.totalRentals}</div>
-        </div>
-
         <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
           <div className="flex items-center mb-4">
             <div className="p-3 bg-white/10 rounded-lg">
@@ -116,13 +88,13 @@ export default function AdminDashboard() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
                 />
               </svg>
             </div>
           </div>
-          <div className="text-sm text-white/60 mb-1">Total Rentals</div>
-          <div className="text-3xl font-medium">{stats.totalRentals}</div>
+          <div className="text-sm text-white/60 mb-1">Combo Packages</div>
+          <div className="text-3xl font-medium">{stats.totalCombos}</div>
         </div>
 
         <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
@@ -253,7 +225,32 @@ export default function AdminDashboard() {
             </svg>
           </div>
           <p className="text-white/60 text-sm">
-            Manage camera and accessory rentals
+            Manage camera and accessory listings
+          </p>
+        </Link>
+
+        <Link
+          href="/admin/combos"
+          className="group bg-white/5 rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-200 hover:bg-white/10"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-medium">Combo Packages</h3>
+            <svg
+              className="h-5 w-5 text-white/40 group-hover:text-white transition-colors"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </div>
+          <p className="text-white/60 text-sm">
+            Manage accessory combo packages
           </p>
         </Link>
 

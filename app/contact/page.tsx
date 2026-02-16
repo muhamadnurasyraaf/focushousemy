@@ -42,7 +42,15 @@ export default function ContactPage() {
       <nav className="fixed w-full top-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <Link href="/" className="text-2xl font-medium tracking-tight">
+            <Link
+              href="/"
+              className="flex items-center gap-2 text-2xl font-medium tracking-tight"
+            >
+              <img
+                src="/focus_house_icon.jpeg"
+                alt="FocusHouse"
+                className="h-8 w-8 rounded"
+              />
               FocusHouse
             </Link>
             <div className="flex items-center space-x-8">
@@ -67,13 +75,13 @@ export default function ContactPage() {
                 </Link>
                 <div className="absolute top-full left-0 mt-2 w-48 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                   <Link
-                    href="/accessories"
+                    href="/accessories?tab=combo"
                     className="block px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors duration-200"
                   >
                     Combo Package
                   </Link>
                   <Link
-                    href="/agreement"
+                    href="/accessories?tab=agreement"
                     className="block px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors duration-200"
                   >
                     Agreement
@@ -161,9 +169,7 @@ export default function ContactPage() {
               href={config.instagram || "#"}
               target={config.instagram ? "_blank" : undefined}
               rel={config.instagram ? "noopener noreferrer" : undefined}
-              onClick={
-                config.instagram ? undefined : (e) => e.preventDefault()
-              }
+              onClick={config.instagram ? undefined : (e) => e.preventDefault()}
               className={`group bg-white/5 rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-500 hover:transform hover:scale-[1.02] ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
               style={{ transitionDelay: "200ms" }}
             >
@@ -185,9 +191,7 @@ export default function ContactPage() {
               href={config.facebook || "#"}
               target={config.facebook ? "_blank" : undefined}
               rel={config.facebook ? "noopener noreferrer" : undefined}
-              onClick={
-                config.facebook ? undefined : (e) => e.preventDefault()
-              }
+              onClick={config.facebook ? undefined : (e) => e.preventDefault()}
               className={`group bg-white/5 rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-500 hover:transform hover:scale-[1.02] ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
               style={{ transitionDelay: "300ms" }}
             >
@@ -213,9 +217,7 @@ export default function ContactPage() {
               }
               target={config.address ? "_blank" : undefined}
               rel={config.address ? "noopener noreferrer" : undefined}
-              onClick={
-                config.address ? undefined : (e) => e.preventDefault()
-              }
+              onClick={config.address ? undefined : (e) => e.preventDefault()}
               className={`group bg-white/5 rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-500 hover:transform hover:scale-[1.02] ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
               style={{ transitionDelay: "400ms" }}
             >

@@ -25,8 +25,13 @@ export default function AdminLayout({
             <div className="flex items-center space-x-8">
               <Link
                 href="/admin"
-                className="text-2xl font-medium tracking-tight"
+                className="flex items-center gap-2 text-2xl font-medium tracking-tight"
               >
+                <img
+                  src="/focus_house_icon.jpeg"
+                  alt="FocusHouse"
+                  className="h-8 w-8 rounded"
+                />
                 FocusHouse
               </Link>
               <div className="hidden md:flex md:space-x-2">
