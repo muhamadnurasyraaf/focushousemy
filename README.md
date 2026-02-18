@@ -87,9 +87,7 @@ npx prisma migrate dev
 pnpm seed
 ```
 
-This creates an admin account:
-- **Email:** admin@focushouse.com
-- **Password:** admin123
+
 
 6. Start the development server:
 ```bash
@@ -175,8 +173,7 @@ focushouse/
 
 ### For Photographers (Admin)
 
-1. Visit `/auth/signin` to access the photographer portal
-2. Sign in with credentials: `admin@focushouse.com` / `admin123`
+
 3. **Manage Packages:** Add, edit, or delete photography packages
 4. **Manage Sessions:** View all session requests, filter by status
 5. **Confirm/Cancel:** Update session status with optional reason

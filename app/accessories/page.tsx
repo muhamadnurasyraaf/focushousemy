@@ -233,6 +233,11 @@ function AccessoriesContent() {
         <div
           className={`relative z-10 max-w-5xl mx-auto px-6 lg:px-8 text-center transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
         >
+          <img
+            src="/focus_house_icon.jpeg"
+            alt="FocusHouse"
+            className="h-24 md:h-32 mx-auto mb-8 object-contain"
+          />
           <h1 className="text-6xl md:text-8xl font-medium tracking-tight mb-6 leading-tight">
             {activeTab === "agreement" ? (
               <>

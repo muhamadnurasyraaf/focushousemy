@@ -447,9 +447,9 @@ function FallbackHome() {
           className={`relative z-10 max-w-5xl mx-auto px-6 lg:px-8 text-center transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
         >
           <h1 className="text-6xl md:text-8xl font-medium tracking-tight mb-6 leading-tight">
-            Capture Your
+            Where Creators
             <br />
-            <span className="text-white/40">Perfect Moment</span>
+            <span className="text-white/40">Feels at Home</span>
           </h1>
           <p className="text-xl md:text-2xl text-white/60 mb-12 max-w-2xl mx-auto font-light">
             Professional photography services, camera accessories, and expert
