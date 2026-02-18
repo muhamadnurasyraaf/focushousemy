@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import { existsSync } from "fs";
-import path from "path";
+import { uploadImage } from "@/lib/cloudinary";
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,19 +29,8 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const timestamp = Date.now();
-    const extension = file.name.split(".").pop();
-    const filename = `accessory-${timestamp}.${extension}`;
-
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
-    if (!existsSync(uploadsDir)) {
-      await mkdir(uploadsDir, { recursive: true });
-    }
-
-    const filepath = path.join(uploadsDir, filename);
-    await writeFile(filepath, buffer);
-
-    const imagePath = `/uploads/${filename}`;
+    // Upload to Cloudinary
+    const imagePath = await uploadImage(buffer, "focushouse/accessories");
 
     return NextResponse.json({ success: true, path: imagePath });
   } catch (error) {
