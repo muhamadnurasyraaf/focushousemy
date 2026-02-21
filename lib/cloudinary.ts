@@ -10,14 +10,21 @@ export async function uploadImage(
   buffer: Buffer,
   folder: string,
 ): Promise<string> {
-  const base64 = `data:image/webp;base64,${buffer.toString("base64")}`;
-
-  const result = await cloudinary.uploader.upload(base64, {
-    folder,
-    resource_type: "image",
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader
+      .upload_stream(
+        {
+          folder,
+          resource_type: "image",
+          timeout: 30000,
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result!.secure_url);
+        },
+      )
+      .end(buffer);
   });
-
-  return result.secure_url;
 }
 
 export default cloudinary;
