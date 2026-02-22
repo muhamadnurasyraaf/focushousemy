@@ -71,7 +71,7 @@ export default function ContactPage() {
                   href="/accessories"
                   className="text-sm text-white/60 hover:text-white transition-colors duration-200"
                 >
-                  Sewa Camera Jb
+                  Sewa Camera JB
                 </Link>
                 <div className="absolute top-full left-0 mt-2 w-48 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                   <Link

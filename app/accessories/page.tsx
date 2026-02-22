@@ -183,7 +183,7 @@ function AccessoriesContent() {
                   href="/accessories"
                   className="text-sm text-white hover:text-white transition-colors duration-200"
                 >
-                  Sewa Camera Jb
+                  Sewa Camera JB
                 </Link>
                 <div className="absolute top-full left-0 mt-2 w-48 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                   <Link
@@ -234,9 +234,9 @@ function AccessoriesContent() {
           className={`relative z-10 max-w-5xl mx-auto px-6 lg:px-8 text-center transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
         >
           <img
-            src="/focus_house_icon.jpeg"
+            src="/scjb_logo.png"
             alt="FocusHouse"
-            className="h-24 md:h-32 mx-auto mb-8 object-contain"
+            className="h-40 md:h-40 w-auto mx-auto mb-8 object-contain"
           />
           <h1 className="text-6xl md:text-8xl font-medium tracking-tight mb-6 leading-tight">
             {activeTab === "agreement" ? (
