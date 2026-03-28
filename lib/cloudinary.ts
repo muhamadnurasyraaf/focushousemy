@@ -27,4 +27,25 @@ export async function uploadImage(
   });
 }
 
+export async function uploadVideo(
+  buffer: Buffer,
+  folder: string,
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader
+      .upload_stream(
+        {
+          folder,
+          resource_type: "video",
+          timeout: 120000,
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result!.secure_url);
+        },
+      )
+      .end(buffer);
+  });
+}
+
 export default cloudinary;

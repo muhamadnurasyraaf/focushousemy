@@ -165,6 +165,7 @@ model PhotographyService {
   duration      String?
   mainImage     String?
   galleryImages String[]
+  videos        String[]
   features      String[]
   category      String   @default("PHOTOGRAPHY")
   isActive      Boolean  @default(true)

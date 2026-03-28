@@ -8,12 +8,16 @@ import {
   CarouselBlockData,
   GalleryBlockData,
   FullWidthBannerBlockData,
+  VideoBlockData,
+  TextMediaBlockData,
 } from "@/lib/blocks";
 import { HeroEditor } from "./hero-editor";
 import { ImageTextEditor } from "./image-text-editor";
 import { CarouselEditor } from "./carousel-editor";
 import { GalleryEditor } from "./gallery-editor";
 import { FullWidthBannerEditor } from "./full-width-banner-editor";
+import { VideoEditor } from "./video-editor";
+import { TextMediaEditor } from "./text-media-editor";
 
 interface BlockEditorProps {
   block: Block;
@@ -54,6 +58,20 @@ export function BlockEditor({ block, onChange }: BlockEditorProps) {
       return (
         <FullWidthBannerEditor
           data={block.data as FullWidthBannerBlockData}
+          onChange={onChange}
+        />
+      );
+    case "video":
+      return (
+        <VideoEditor
+          data={block.data as VideoBlockData}
+          onChange={onChange}
+        />
+      );
+    case "text-media":
+      return (
+        <TextMediaEditor
+          data={block.data as TextMediaBlockData}
           onChange={onChange}
         />
       );

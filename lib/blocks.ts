@@ -3,7 +3,9 @@ export type BlockType =
   | "image-text"
   | "carousel"
   | "gallery"
-  | "full-width-banner";
+  | "full-width-banner"
+  | "video"
+  | "text-media";
 
 export interface HeroBlockData {
   backgroundImage: string;
@@ -49,12 +51,34 @@ export interface FullWidthBannerBlockData {
   overlayOpacity: number;
 }
 
+export interface VideoBlockData {
+  url: string;
+  title: string;
+  description: string;
+  autoplay: boolean;
+  loop: boolean;
+  muted: boolean;
+}
+
+export interface TextMediaBlockData {
+  topTitle: string;
+  topDescription: string;
+  mediaType: "image" | "video";
+  mediaUrl: string;
+  sideText: string;
+  autoplay: boolean;
+  loop: boolean;
+  muted: boolean;
+}
+
 export type BlockData =
   | HeroBlockData
   | ImageTextBlockData
   | CarouselBlockData
   | GalleryBlockData
-  | FullWidthBannerBlockData;
+  | FullWidthBannerBlockData
+  | VideoBlockData
+  | TextMediaBlockData;
 
 export interface Block {
   id: string;
@@ -69,6 +93,8 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   carousel: "Carousel / Slider",
   gallery: "Gallery Grid",
   "full-width-banner": "Full-Width Banner",
+  video: "Video",
+  "text-media": "Text + Media Split",
 };
 
 export const BLOCK_DESCRIPTIONS: Record<BlockType, string> = {
@@ -77,6 +103,8 @@ export const BLOCK_DESCRIPTIONS: Record<BlockType, string> = {
   carousel: "Scrolling image carousel with captions",
   gallery: "Grid of images with optional lightbox",
   "full-width-banner": "Full-width banner with overlay text and CTA",
+  video: "Embed a video with optional title and description",
+  "text-media": "Text on top, image or video on the left with text on the right",
 };
 
 export function createDefaultBlockData(type: BlockType): BlockData {
@@ -119,6 +147,26 @@ export function createDefaultBlockData(type: BlockType): BlockData {
         ctaText: "Get Started",
         ctaLink: "#",
         overlayOpacity: 50,
+      };
+    case "video":
+      return {
+        url: "",
+        title: "",
+        description: "",
+        autoplay: false,
+        loop: false,
+        muted: true,
+      };
+    case "text-media":
+      return {
+        topTitle: "",
+        topDescription: "",
+        mediaType: "image" as const,
+        mediaUrl: "",
+        sideText: "",
+        autoplay: false,
+        loop: false,
+        muted: true,
       };
   }
 }

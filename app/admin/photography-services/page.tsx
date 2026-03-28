@@ -11,6 +11,7 @@ interface PhotographyService {
   duration: string | null;
   mainImage: string | null;
   galleryImages: string[];
+  videos: string[];
   features: string[];
   category: string;
   isActive: boolean;
@@ -23,6 +24,7 @@ export default function PhotographyServicesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [uploadingMain, setUploadingMain] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -31,6 +33,7 @@ export default function PhotographyServicesPage() {
     duration: "",
     mainImage: "",
     galleryImages: [] as string[],
+    videos: [] as string[],
     features: "",
     category: "PHOTOGRAPHY",
     isActive: true,
@@ -61,6 +64,7 @@ export default function PhotographyServicesPage() {
       duration: service.duration || "",
       mainImage: service.mainImage || "",
       galleryImages: service.galleryImages || [],
+      videos: service.videos || [],
       features: service.features.join(", "),
       category: service.category,
       isActive: service.isActive,
@@ -80,6 +84,7 @@ export default function PhotographyServicesPage() {
       duration: "",
       mainImage: "",
       galleryImages: [],
+      videos: [],
       features: "",
       category: "PHOTOGRAPHY",
       isActive: true,
@@ -157,6 +162,46 @@ export default function PhotographyServicesPage() {
     const newGallery = [...formData.galleryImages];
     newGallery.splice(index, 1);
     setFormData({ ...formData, galleryImages: newGallery });
+  }
+
+  async function handleVideoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingVideo(true);
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const formDataUpload = new FormData();
+        formDataUpload.append("file", file);
+
+        const res = await fetch("/api/upload/photography-video", {
+          method: "POST",
+          body: formDataUpload,
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || "Failed to upload video");
+          return null;
+        }
+        return data.path as string;
+      });
+
+      const uploadedPaths = await Promise.all(uploadPromises);
+      const validPaths = uploadedPaths.filter((p) => p !== null) as string[];
+      setFormData({ ...formData, videos: [...formData.videos, ...validPaths] });
+    } catch (error) {
+      console.error("Error uploading video:", error);
+      alert("Failed to upload video");
+    } finally {
+      setUploadingVideo(false);
+    }
+  }
+
+  function removeVideo(index: number) {
+    const newVideos = [...formData.videos];
+    newVideos.splice(index, 1);
+    setFormData({ ...formData, videos: newVideos });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -279,7 +324,7 @@ export default function PhotographyServicesPage() {
                           d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      ${service.price}
+                      RM{service.price}
                     </div>
                   )}
                   {service.duration && (
@@ -303,6 +348,11 @@ export default function PhotographyServicesPage() {
                   <div className="flex items-center">
                     Gallery: {service.galleryImages.length} images
                   </div>
+                  {service.videos?.length > 0 && (
+                    <div className="flex items-center">
+                      Videos: {service.videos.length}
+                    </div>
+                  )}
                   <div className="flex items-center">
                     Order: {service.order}
                   </div>
@@ -566,6 +616,55 @@ export default function PhotographyServicesPage() {
                             <button
                               type="button"
                               onClick={() => removeGalleryImage(idx)}
+                              className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full hover:bg-red-600"
+                            >
+                              <svg
+                                className="h-3 w-3"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium mb-2">
+                      Videos (Multiple)
+                    </label>
+                    <input
+                      type="file"
+                      accept="video/mp4,video/quicktime,video/webm,video/x-msvideo,video/mpeg"
+                      multiple
+                      onChange={handleVideoUpload}
+                      disabled={uploadingVideo}
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30"
+                    />
+                    {uploadingVideo && (
+                      <p className="text-sm text-white/60 mt-2">Uploading video...</p>
+                    )}
+                    {formData.videos.length > 0 && (
+                      <div className="mt-4 grid grid-cols-2 gap-4">
+                        {formData.videos.map((vid, idx) => (
+                          <div key={idx} className="relative">
+                            <video
+                              src={vid}
+                              controls
+                              className="w-full rounded-lg"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeVideo(idx)}
                               className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full hover:bg-red-600"
                             >
                               <svg

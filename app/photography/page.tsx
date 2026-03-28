@@ -10,6 +10,8 @@ import {
   CarouselBlockData,
   GalleryBlockData,
   FullWidthBannerBlockData,
+  VideoBlockData,
+  TextMediaBlockData,
 } from "@/lib/blocks";
 
 // ── Hero Block ──────────────────────────────────────────────────────────
@@ -379,6 +381,90 @@ function FullWidthBannerBlock({ data }: { data: FullWidthBannerBlockData }) {
   );
 }
 
+// ── Video Block ─────────────────────────────────────────────────────────
+
+function VideoBlock({ data }: { data: VideoBlockData }) {
+  if (!data.url) return null;
+
+  return (
+    <section className="py-16 px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
+        {data.title && (
+          <h2 className="text-4xl font-medium tracking-tight mb-4 text-center">
+            {data.title}
+          </h2>
+        )}
+        {data.description && (
+          <p className="text-white/60 text-center mb-8 text-lg">
+            {data.description}
+          </p>
+        )}
+        <video
+          src={data.url}
+          controls
+          autoPlay={data.autoplay}
+          loop={data.loop}
+          muted={data.muted}
+          playsInline
+          className="w-full rounded-2xl bg-black"
+        />
+      </div>
+    </section>
+  );
+}
+
+// ── Text + Media Block ───────────────────────────────────────────────────
+
+function TextMediaBlock({ data }: { data: TextMediaBlockData }) {
+  const mediaEl =
+    data.mediaType === "video" && data.mediaUrl ? (
+      <video
+        src={data.mediaUrl}
+        controls
+        autoPlay={data.autoplay}
+        loop={data.loop}
+        muted={data.muted}
+        playsInline
+        className="w-full rounded-2xl bg-black"
+      />
+    ) : data.mediaUrl ? (
+      <img
+        src={data.mediaUrl}
+        alt={data.topTitle}
+        className="w-full h-full object-cover rounded-2xl"
+      />
+    ) : null;
+
+  return (
+    <section className="py-16 px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {(data.topTitle || data.topDescription) && (
+          <div className="mb-10">
+            {data.topTitle && (
+              <h2 className="text-4xl md:text-5xl font-medium tracking-tight mb-4">
+                {data.topTitle}
+              </h2>
+            )}
+            {data.topDescription && (
+              <p className="text-xl text-white/60">{data.topDescription}</p>
+            )}
+          </div>
+        )}
+        {mediaEl && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+            <div>{mediaEl}</div>
+            {data.sideText && (
+              <p className="text-lg text-white/70 leading-relaxed whitespace-pre-line">
+                {data.sideText}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 // ── Block Renderer ──────────────────────────────────────────────────────
 
 function RenderBlock({ block }: { block: Block }) {
@@ -395,6 +481,10 @@ function RenderBlock({ block }: { block: Block }) {
       return (
         <FullWidthBannerBlock data={block.data as FullWidthBannerBlockData} />
       );
+    case "video":
+      return <VideoBlock data={block.data as VideoBlockData} />;
+    case "text-media":
+      return <TextMediaBlock data={block.data as TextMediaBlockData} />;
     default:
       return null;
   }

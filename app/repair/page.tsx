@@ -298,7 +298,7 @@ export default function RepairPage() {
                     <option value="">Select a service</option>
                     {services.map((service) => (
                       <option key={service.id} value={service.id}>
-                        {service.name} - ${service.basePrice} (base price)
+                        {service.name} - RM{service.basePrice} (base price)
                       </option>
                     ))}
                   </select>
@@ -414,7 +414,7 @@ export default function RepairPage() {
                         Starting at
                       </div>
                       <div className="text-3xl font-medium">
-                        ${service.basePrice}
+                        RM{service.basePrice}
                       </div>
                     </div>
 
