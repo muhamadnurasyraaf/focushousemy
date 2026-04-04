@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import ContactSection from "@/components/contact-section";
+import Navbar from "@/components/navbar";
 
 interface Accessory {
   id: string;
@@ -142,72 +143,7 @@ function AccessoriesContent() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Navigation */}
-      <nav className="fixed w-full top-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <Link
-              href="/"
-              className="flex items-center gap-2 text-2xl font-medium tracking-tight"
-            >
-              <img
-                src="/focus_house_icon.jpeg"
-                alt="FocusHouse"
-                className="h-8 w-8 rounded"
-              />
-              FocusHouse
-            </Link>
-            <div className="flex items-center space-x-8">
-              <Link
-                href="/"
-                className="text-sm text-white/60 hover:text-white transition-colors duration-200"
-              >
-                Home
-              </Link>
-              <Link
-                href="/photography"
-                className="text-sm text-white/60 hover:text-white transition-colors duration-200"
-              >
-                Photography and Videography
-              </Link>
-              <div className="relative group">
-                <Link
-                  href="/accessories"
-                  className="text-sm text-white hover:text-white transition-colors duration-200"
-                >
-                  Sewa Camera JB
-                </Link>
-                <div className="absolute top-full left-0 mt-2 w-48 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                  <Link
-                    href="/accessories?tab=combo"
-                    className="block px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors duration-200"
-                  >
-                    Combo Package
-                  </Link>
-                  <Link
-                    href="/accessories?tab=agreement"
-                    className="block px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors duration-200"
-                  >
-                    Agreement
-                  </Link>
-                </div>
-              </div>
-              <Link
-                href="/repair"
-                className="text-sm text-white/60 hover:text-white transition-colors duration-200"
-              >
-                Repair
-              </Link>
-              <Link
-                href="/contact"
-                className="text-sm text-white/60 hover:text-white transition-colors duration-200"
-              >
-                Contact
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden pt-20">
