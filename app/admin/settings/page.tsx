@@ -7,6 +7,7 @@ interface SiteConfig {
   heroBackgroundImage: string | null;
   contactNumber: string | null;
   instagram: string | null;
+  instagramCatalogue: string | null;
   facebook: string | null;
   address: string | null;
 }
@@ -17,6 +18,7 @@ export default function SettingsPage() {
   const [isSavingContact, setIsSavingContact] = useState(false);
   const [contactMessage, setContactMessage] = useState("");
   const [instagram, setInstagram] = useState("");
+  const [instagramCatalogue, setInstagramCatalogue] = useState("");
   const [facebook, setFacebook] = useState("");
   const [address, setAddress] = useState("");
   const [isSavingSocial, setIsSavingSocial] = useState(false);
@@ -40,6 +42,9 @@ export default function SettingsPage() {
       }
       if (data.instagram) {
         setInstagram(data.instagram);
+      }
+      if (data.instagramCatalogue) {
+        setInstagramCatalogue(data.instagramCatalogue);
       }
       if (data.facebook) {
         setFacebook(data.facebook);
@@ -163,6 +168,7 @@ export default function SettingsPage() {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 instagram: instagram || null,
+                instagramCatalogue: instagramCatalogue || null,
                 facebook: facebook || null,
                 address: address || null,
               }),
@@ -205,6 +211,24 @@ export default function SettingsPage() {
                 value={instagram}
                 onChange={(e) => setInstagram(e.target.value)}
                 placeholder="https://www.instagram.com/yourusername"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-colors"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="instagramCatalogue"
+                className="block text-sm font-medium mb-2"
+              >
+                Instagram Catalogue URL{" "}
+                <span className="text-white/40 font-normal">(Photography & Videography page)</span>
+              </label>
+              <input
+                type="text"
+                id="instagramCatalogue"
+                value={instagramCatalogue}
+                onChange={(e) => setInstagramCatalogue(e.target.value)}
+                placeholder="https://www.instagram.com/yourcatalogue"
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-colors"
               />
             </div>

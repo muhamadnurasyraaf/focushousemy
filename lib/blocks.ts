@@ -64,7 +64,7 @@ export interface TextMediaBlockData {
   topTitle: string;
   topDescription: string;
   mediaType: "image" | "video";
-  mediaUrl: string;
+  mediaUrls: string[];
   sideText: string;
   autoplay: boolean;
   loop: boolean;
@@ -162,7 +162,7 @@ export function createDefaultBlockData(type: BlockType): BlockData {
         topTitle: "",
         topDescription: "",
         mediaType: "image" as const,
-        mediaUrl: "",
+        mediaUrls: [],
         sideText: "",
         autoplay: false,
         loop: false,

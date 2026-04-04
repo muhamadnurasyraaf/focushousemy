@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { toast } from "sonner";
 import { TextMediaBlockData } from "@/lib/blocks";
-import { ImageUpload } from "../image-upload";
+import { MultiImageUpload } from "../image-upload";
 
 interface TextMediaEditorProps {
   data: TextMediaBlockData;
@@ -22,6 +23,7 @@ export function TextMediaEditor({ data, onChange }: TextMediaEditorProps) {
     if (!file) return;
 
     setUploadingVideo(true);
+    const uploadToast = toast.loading(`Uploading ${file.name}...`);
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -31,17 +33,20 @@ export function TextMediaEditor({ data, onChange }: TextMediaEditorProps) {
       });
       const result = await res.json();
       if (res.ok) {
-        update({ mediaUrl: result.path });
+        update({ mediaUrls: [result.path] });
+        toast.success("Video uploaded successfully", { id: uploadToast });
       } else {
-        alert(result.error || "Failed to upload video");
+        toast.error(result.error || "Failed to upload video", { id: uploadToast });
       }
     } catch {
-      alert("Failed to upload video");
+      toast.error("Upload failed. Please try again.", { id: uploadToast });
     } finally {
       setUploadingVideo(false);
       if (videoInputRef.current) videoInputRef.current.value = "";
     }
   }
+
+  const videoUrl = data.mediaUrls?.[0] ?? "";
 
   return (
     <div className="space-y-5">
@@ -80,7 +85,7 @@ export function TextMediaEditor({ data, onChange }: TextMediaEditorProps) {
             <button
               key={type}
               type="button"
-              onClick={() => update({ mediaType: type, mediaUrl: "" })}
+              onClick={() => update({ mediaType: type, mediaUrls: [] })}
               className={`flex-1 py-3 rounded-lg border text-sm font-medium transition-colors capitalize ${
                 data.mediaType === type
                   ? "bg-white text-black border-white"
@@ -95,24 +100,24 @@ export function TextMediaEditor({ data, onChange }: TextMediaEditorProps) {
 
       {/* Media upload */}
       {data.mediaType === "image" ? (
-        <ImageUpload
-          label="Image (Left)"
-          value={data.mediaUrl}
-          onChange={(url) => update({ mediaUrl: url })}
+        <MultiImageUpload
+          label="Images (Left Side — multiple allowed)"
+          values={data.mediaUrls ?? []}
+          onChange={(urls) => update({ mediaUrls: urls })}
         />
       ) : (
         <div>
           <label className="block text-sm font-medium mb-2">Video (Left)</label>
-          {data.mediaUrl ? (
+          {videoUrl ? (
             <div className="relative">
               <video
-                src={data.mediaUrl}
+                src={videoUrl}
                 controls
                 className="w-full rounded-lg max-h-48 object-contain bg-black"
               />
               <button
                 type="button"
-                onClick={() => update({ mediaUrl: "" })}
+                onClick={() => update({ mediaUrls: [] })}
                 className="absolute top-2 right-2 p-1 bg-red-500 rounded-full hover:bg-red-600"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -148,7 +153,7 @@ export function TextMediaEditor({ data, onChange }: TextMediaEditorProps) {
           />
 
           {/* Video options */}
-          {data.mediaUrl && (
+          {videoUrl && (
             <div className="flex flex-wrap gap-4 mt-3">
               {(
                 [

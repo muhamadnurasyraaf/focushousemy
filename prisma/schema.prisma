@@ -114,6 +114,7 @@ model SiteConfig {
   heroBackgroundImage String?
   contactNumber       String?
   instagram           String?
+  instagramCatalogue  String?
   facebook            String?
   address             String?
   createdAt           DateTime @default(now())

@@ -29,7 +29,7 @@ export async function GET() {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { heroBackgroundImage, contactNumber, instagram, facebook, address } =
+    const { heroBackgroundImage, contactNumber, instagram, instagramCatalogue, facebook, address } =
       body;
 
     // Get existing config or create one
@@ -40,6 +40,7 @@ export async function PUT(request: NextRequest) {
       updateData.heroBackgroundImage = heroBackgroundImage;
     if ("contactNumber" in body) updateData.contactNumber = contactNumber;
     if ("instagram" in body) updateData.instagram = instagram;
+    if ("instagramCatalogue" in body) updateData.instagramCatalogue = instagramCatalogue;
     if ("facebook" in body) updateData.facebook = facebook;
     if ("address" in body) updateData.address = address;
 
@@ -49,6 +50,7 @@ export async function PUT(request: NextRequest) {
           heroBackgroundImage: heroBackgroundImage ?? null,
           contactNumber: contactNumber ?? null,
           instagram: instagram ?? null,
+          instagramCatalogue: instagramCatalogue ?? null,
           facebook: facebook ?? null,
           address: address ?? null,
         },
