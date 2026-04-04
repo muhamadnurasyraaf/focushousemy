@@ -1,6 +1,20 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { toast } from "sonner";
+
+const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+const VALID_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
+function validateImageFile(file: File): string | null {
+  if (!VALID_TYPES.includes(file.type)) {
+    return "Invalid file type. Only JPEG, PNG, and WebP are allowed.";
+  }
+  if (file.size > MAX_SIZE) {
+    return `File "${file.name}" is too large. Maximum size is 10MB.`;
+  }
+  return null;
+}
 
 interface ImageUploadProps {
   value: string;
@@ -16,7 +30,15 @@ export function ImageUpload({ value, onChange, label }: ImageUploadProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const error = validateImageFile(file);
+    if (error) {
+      toast.error(error);
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
+
     setUploading(true);
+    const uploadToast = toast.loading(`Uploading ${file.name}...`);
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -27,9 +49,12 @@ export function ImageUpload({ value, onChange, label }: ImageUploadProps) {
       const data = await res.json();
       if (res.ok) {
         onChange(data.path);
+        toast.success("Image uploaded successfully", { id: uploadToast });
+      } else {
+        toast.error(data.error || "Failed to upload image", { id: uploadToast });
       }
-    } catch (err) {
-      console.error("Upload failed:", err);
+    } catch {
+      toast.error("Upload failed. Please try again.", { id: uploadToast });
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -102,9 +127,22 @@ export function MultiImageUpload({ values, onChange, label }: MultiImageUploadPr
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    const fileArray = Array.from(files);
+
+    // Client-side validation for all files first
+    for (const file of fileArray) {
+      const error = validateImageFile(file);
+      if (error) {
+        toast.error(error);
+        if (inputRef.current) inputRef.current.value = "";
+        return;
+      }
+    }
+
     setUploading(true);
+    const uploadToast = toast.loading(`Uploading ${fileArray.length} image${fileArray.length > 1 ? "s" : ""}...`);
     try {
-      const uploads = Array.from(files).map(async (file) => {
+      const uploads = fileArray.map(async (file) => {
         const formData = new FormData();
         formData.append("file", file);
         const res = await fetch("/api/upload/photography-image", {
@@ -112,14 +150,25 @@ export function MultiImageUpload({ values, onChange, label }: MultiImageUploadPr
           body: formData,
         });
         const data = await res.json();
-        return res.ok ? data.path : null;
+        if (!res.ok) throw new Error(data.error || `Failed to upload ${file.name}`);
+        return data.path as string;
       });
 
-      const results = await Promise.all(uploads);
-      const valid = results.filter((p): p is string => p !== null);
-      onChange([...values, ...valid]);
-    } catch (err) {
-      console.error("Upload failed:", err);
+      const results = await Promise.allSettled(uploads);
+      const succeeded = results
+        .filter((r): r is PromiseFulfilledResult<string> => r.status === "fulfilled")
+        .map((r) => r.value);
+      const failed = results.filter((r) => r.status === "rejected").length;
+
+      onChange([...values, ...succeeded]);
+
+      if (failed > 0) {
+        toast.warning(`${succeeded.length} uploaded, ${failed} failed.`, { id: uploadToast });
+      } else {
+        toast.success(`${succeeded.length} image${succeeded.length > 1 ? "s" : ""} uploaded`, { id: uploadToast });
+      }
+    } catch {
+      toast.error("Upload failed. Please try again.", { id: uploadToast });
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
