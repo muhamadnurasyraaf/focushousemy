@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Accessory {
   id: string;
@@ -39,10 +39,12 @@ export default function AdminCombosPage() {
     name: "",
     description: "",
     price: "",
-    images: "",
     isActive: true,
     order: "0",
   });
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formItems, setFormItems] = useState<FormItem[]>([]);
 
   useEffect(() => {
@@ -70,16 +72,50 @@ export default function AdminCombosPage() {
     }
   }
 
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        const uploadData = new FormData();
+        uploadData.append("file", file);
+
+        const res = await fetch("/api/upload/combo-image", {
+          method: "POST",
+          body: uploadData,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setImageUrls((prev) => [...prev, data.path]);
+        } else {
+          const err = await res.json();
+          alert(err.error || "Failed to upload image");
+        }
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert("Failed to upload image");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  }
+
   function handleEdit(combo: Combo) {
     setEditingId(combo.id);
     setFormData({
       name: combo.name,
       description: combo.description || "",
       price: combo.price.toString(),
-      images: combo.images.join(", "),
       isActive: combo.isActive,
       order: combo.order.toString(),
     });
+    setImageUrls(combo.images);
     setFormItems(
       combo.items.map((item) => ({
         accessoryId: item.accessory.id,
@@ -96,10 +132,10 @@ export default function AdminCombosPage() {
       name: "",
       description: "",
       price: "",
-      images: "",
       isActive: true,
       order: "0",
     });
+    setImageUrls([]);
     setFormItems([]);
   }
 
@@ -136,10 +172,7 @@ export default function AdminCombosPage() {
           name: formData.name,
           description: formData.description || null,
           price: parseFloat(formData.price),
-          images: formData.images
-            .split(",")
-            .map((img) => img.trim())
-            .filter(Boolean),
+          images: imageUrls,
           isActive: formData.isActive,
           order: parseInt(formData.order),
           items: formItems.filter((item) => item.accessoryId),
@@ -298,17 +331,65 @@ export default function AdminCombosPage() {
 
             <div>
               <label className="block text-sm font-medium text-white/60 mb-2">
-                Images (comma-separated URLs)
+                Images
               </label>
+              {imageUrls.length > 0 && (
+                <div className="flex flex-wrap gap-3 mb-3">
+                  {imageUrls.map((url, index) => (
+                    <div key={index} className="relative group">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={url}
+                        alt={`Combo image ${index + 1}`}
+                        className="w-24 h-24 object-cover rounded-lg border border-white/10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setImageUrls(imageUrls.filter((_, i) => i !== index))
+                        }
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
               <input
-                type="text"
-                value={formData.images}
-                onChange={(e) =>
-                  setFormData({ ...formData, images: e.target.value })
-                }
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 transition-colors text-white placeholder:text-white/20"
-                placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                onChange={handleImageUpload}
+                className="hidden"
               />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 border-dashed rounded-lg hover:bg-white/10 hover:border-white/20 transition-colors text-white/60 hover:text-white/80 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {uploading ? (
+                  <>
+                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Upload Images
+                  </>
+                )}
+              </button>
+              <p className="mt-1 text-xs text-white/30">JPEG, PNG, WebP up to 5MB each</p>
             </div>
 
             {/* Combo Items */}
