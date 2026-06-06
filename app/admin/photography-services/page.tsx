@@ -170,26 +170,39 @@ export default function PhotographyServicesPage() {
 
     setUploadingVideo(true);
     try {
-      const uploadPromises = Array.from(files).map(async (file) => {
-        const formDataUpload = new FormData();
-        formDataUpload.append("file", file);
+      const signRes = await fetch(
+        "/api/upload/sign?folder=focushouse/photography/videos",
+      );
+      const { signature, timestamp, api_key, cloud_name, folder } =
+        await signRes.json();
 
-        const res = await fetch("/api/upload/photography-video", {
-          method: "POST",
-          body: formDataUpload,
-        });
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const uploadData = new FormData();
+        uploadData.append("file", file);
+        uploadData.append("api_key", api_key);
+        uploadData.append("timestamp", timestamp.toString());
+        uploadData.append("signature", signature);
+        uploadData.append("folder", folder);
+
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${cloud_name}/video/upload`,
+          { method: "POST", body: uploadData },
+        );
 
         const data = await res.json();
         if (!res.ok) {
-          alert(data.error || "Failed to upload video");
+          alert(data.error?.message || "Failed to upload video");
           return null;
         }
-        return data.path as string;
+        return data.secure_url as string;
       });
 
       const uploadedPaths = await Promise.all(uploadPromises);
       const validPaths = uploadedPaths.filter((p) => p !== null) as string[];
-      setFormData({ ...formData, videos: [...formData.videos, ...validPaths] });
+      setFormData((prev) => ({
+        ...prev,
+        videos: [...prev.videos, ...validPaths],
+      }));
     } catch (error) {
       console.error("Error uploading video:", error);
       alert("Failed to upload video");
