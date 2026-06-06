@@ -21,19 +21,29 @@ export function VideoEditor({ data, onChange }: VideoEditorProps) {
 
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
+      const signRes = await fetch(
+        "/api/upload/sign?folder=focushouse/photography/videos",
+      );
+      const { signature, timestamp, api_key, cloud_name, folder } =
+        await signRes.json();
 
-      const res = await fetch("/api/upload/photography-video", {
-        method: "POST",
-        body: formData,
-      });
+      const uploadData = new FormData();
+      uploadData.append("file", file);
+      uploadData.append("api_key", api_key);
+      uploadData.append("timestamp", timestamp.toString());
+      uploadData.append("signature", signature);
+      uploadData.append("folder", folder);
+
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloud_name}/video/upload`,
+        { method: "POST", body: uploadData },
+      );
 
       const result = await res.json();
       if (res.ok) {
-        update({ url: result.path });
+        update({ url: result.secure_url });
       } else {
-        alert(result.error || "Failed to upload video");
+        alert(result.error?.message || "Failed to upload video");
       }
     } catch {
       alert("Failed to upload video");

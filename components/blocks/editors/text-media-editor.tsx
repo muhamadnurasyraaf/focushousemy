@@ -25,18 +25,29 @@ export function TextMediaEditor({ data, onChange }: TextMediaEditorProps) {
     setUploadingVideo(true);
     const uploadToast = toast.loading(`Uploading ${file.name}...`);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/upload/photography-video", {
-        method: "POST",
-        body: formData,
-      });
+      const signRes = await fetch(
+        "/api/upload/sign?folder=focushouse/photography/videos",
+      );
+      const { signature, timestamp, api_key, cloud_name, folder } =
+        await signRes.json();
+
+      const uploadData = new FormData();
+      uploadData.append("file", file);
+      uploadData.append("api_key", api_key);
+      uploadData.append("timestamp", timestamp.toString());
+      uploadData.append("signature", signature);
+      uploadData.append("folder", folder);
+
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloud_name}/video/upload`,
+        { method: "POST", body: uploadData },
+      );
       const result = await res.json();
       if (res.ok) {
-        update({ mediaUrls: [result.path] });
+        update({ mediaUrls: [result.secure_url] });
         toast.success("Video uploaded successfully", { id: uploadToast });
       } else {
-        toast.error(result.error || "Failed to upload video", { id: uploadToast });
+        toast.error(result.error?.message || "Failed to upload video", { id: uploadToast });
       }
     } catch {
       toast.error("Upload failed. Please try again.", { id: uploadToast });
